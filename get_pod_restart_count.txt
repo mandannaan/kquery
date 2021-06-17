@@ -1,0 +1,8 @@
+KubePodInventory
+| where ServiceName == "cronjobsvc"
+| summarize CurrentRestartCount=dcount(PodCreationTimeStamp) by bin(TimeGenerated, 30m) 
+| order by TimeGenerated desc
+| serialize
+| extend prevPodRestarts = prev(CurrentRestartCount, 1)
+| extend diff = CurrentRestartCount - prevPodRestarts
+| where diff >= 3
